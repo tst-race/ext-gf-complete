@@ -36,10 +36,13 @@ if __name__ == "__main__":
     builder.make_dirs(args)
     builder.setup_logger(args)
 
-    builder.install_packages(args, [
-        "automake=1:1.16.1*",
-        "libtool=2.4.6*",
-    ])
+    builder.install_packages(
+        args,
+        [
+            "automake=1:1.16.1*",
+            "libtool=2.4.6*",
+        ],
+    )
 
     # This commit is the latest on the master branch as of 2017-04-10
     ref = "a6862d10c9db467148f20eef2c6445ac9afd94d8"
@@ -55,43 +58,65 @@ if __name__ == "__main__":
 
     logging.root.info("Configuring build")
     if args.target.startswith("android"):
-        builder.execute(args, [
-            "autoreconf",
-            "--install",
-        ], cwd=source_dir, env=env)
+        builder.execute(
+            args,
+            [
+                "autoreconf",
+                "--install",
+            ],
+            cwd=source_dir,
+            env=env,
+        )
 
-        target = "x86_64-linux-android" if "x86" in args.target else "aarch64-linux-android"
-        builder.execute(args, [
-            "./configure",
-            "--prefix=/",
-            f"--host={target}",
-            f"--target={target}"
-        ], cwd=source_dir, env=env)
+        target = (
+            "x86_64-linux-android" if "x86" in args.target else "aarch64-linux-android"
+        )
+        builder.execute(
+            args,
+            ["./configure", "--prefix=/", f"--host={target}", f"--target={target}"],
+            cwd=source_dir,
+            env=env,
+        )
 
     else:
-        builder.execute(args, [
-            "autoreconf",
-            "--install",
-        ], cwd=source_dir, env=env)
+        builder.execute(
+            args,
+            [
+                "autoreconf",
+                "--install",
+            ],
+            cwd=source_dir,
+            env=env,
+        )
 
         target = "x86_64-linux-gnu" if "x86" in args.target else "aarch64-linux-gnu"
-        builder.execute(args, [
-            "./configure",
-            "--prefix=/",
-            f"--host={target}",
-            f"--target={target}"
-        ], cwd=source_dir, env=env)
+        builder.execute(
+            args,
+            ["./configure", "--prefix=/", f"--host={target}", f"--target={target}"],
+            cwd=source_dir,
+            env=env,
+        )
 
     logging.root.info("Building")
-    builder.execute(args, [
-        "make",
-        "-j",
-        args.num_threads,
-    ], cwd=source_dir, env=env)
-    builder.execute(args, [
-        "make",
-        f"DESTDIR={args.install_dir}",
-        "install",
-    ], cwd=source_dir, env=env)
+    builder.execute(
+        args,
+        [
+            "make",
+            "-j",
+            args.num_threads,
+        ],
+        cwd=source_dir,
+        env=env,
+    )
+    builder.execute(
+        args,
+        [
+            "make",
+            f"DESTDIR={args.install_dir}",
+            "install",
+        ],
+        cwd=source_dir,
+        env=env,
+    )
 
     builder.create_package(args)
